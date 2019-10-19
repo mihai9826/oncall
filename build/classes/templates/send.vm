@@ -1,0 +1,33 @@
+<html>
+    <body>
+        <h3>Hi ${user.firstName}, your order has been delivered</h3>
+		
+		<br><br>
+		<table cellpadding="2" cellspacing="1" border="1" style="empty-cells:show">
+		<thead><tr>
+			<th>Nume</th>
+			<th>Cantitate</th>
+			<th>Pret</th>
+			<th>Portii</th>
+		</tr></thead>
+		<tbody>
+		#foreach( $item in $list )
+			#if( $foreach.last)
+				<tr>
+				<td></td>
+				<td><b>Total</b></td>
+				<td colspan="2"><b>$item.Price RON</b></td>
+				</tr>
+				#break
+			#end
+			
+			<tr>
+				<td>$item.Name</td>
+				<td>$item.Weight</td>
+				<td>$item.Price</td>
+				<td align="center">$item.Servings</td>
+			</tr>
+		#end
+		</tbody>
+    </body>
+</html>

@@ -1,0 +1,31 @@
+.padd{
+    padding-top: 5px;
+}
+.padd1{
+    padding-bottom: 5px;
+}
+.bold{
+    font-weight: 600;
+}
+.padleft{
+	padding-left: 20px !important;
+}
+.weight{
+    font-weight: 500 !important;
+}
+.m-top{
+	margin-top: 13px !important;
+}
+.fourty{
+	height: 48px !important;
+}
+#submit{
+  background:none;
+  border:none;
+ 
+}
+.whitex{
+	color:white;
+}
+
+
