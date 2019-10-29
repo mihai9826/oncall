@@ -28,7 +28,7 @@
 		<property name="prefix" value="/WEB-INF/view/" />
 		<property name="suffix" value=".jsp" />
 	</bean>
-	<bean id="myDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+	<bean id="dataSource1" class="com.mchange.v2.c3p0.ComboPooledDataSource"
           destroy-method="close">
         <property name="driverClass" value="com.mysql.jdbc.Driver" />
         <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/on_call?useSSL=false" />
@@ -41,10 +41,23 @@
         <property name="maxIdleTime" value="30000" />
 	</bean>
 	
-    <!-- Step 2: Setup Hibernate session factory 
-	  <bean id="sessionFactory" 
+	<bean id="dataSource2" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+          destroy-method="close">
+        <property name="driverClass" value="com.mysql.jdbc.Driver" />
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/users_orders?useSSL=false" />
+        <property name="user" value="on_call_admin" />
+        <property name="password" value="admin" /> 
+
+		<property name="initialPoolSize" value="5"/>
+        <property name="minPoolSize" value="5" />
+        <property name="maxPoolSize" value="20" />
+        <property name="maxIdleTime" value="30000" />
+	</bean>
+	
+    <!-- Step 2: Setup Hibernate session factory -->
+	  <bean id="sessionFactory1" 
 		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-		<property name="dataSource" ref="myDataSource" />
+		<property name="dataSource" ref="dataSource1" />
 		<property name="packagesToScan" value="com.oncall.entity" />
 		<property name="hibernateProperties">
 		   <props>
@@ -52,16 +65,34 @@
 		      <prop key="hibernate.show_sql">true</prop>
 		   </props>
 		</property>
-   </bean> -->
+   </bean>
+   
+   <bean id="sessionFactory2" 
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource2" />
+		<property name="packagesToScan" value="com.oncall.entity" />
+		<property name="hibernateProperties">
+		   <props>
+		      <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+		      <prop key="hibernate.show_sql">true</prop>
+		   </props>
+		</property>
+   </bean>
 
-    <!-- Step 3: Setup Hibernate transaction manager 
-	<bean id="myTransactionManager"
+    <!--   Step 3: Setup Hibernate transaction manager -->
+	<bean id="transactionManager1"
             class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactory"/>
-    </bean> -->
+        <property name="sessionFactory" ref="sessionFactory1"/>
+    </bean>
     
-    <!-- Step 4: Enable configuration of transactional behavior based on annotations
-	<tx:annotation-driven transaction-manager="myTransactionManager" /> -->
+    <bean id="transactionManager2"
+            class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory2"/>
+        <qualifier value="ordersTransaction" />
+    </bean>
+    
+     <!-- Step 4: Enable configuration of transactional behavior based on annotations -->
+	<tx:annotation-driven transaction-manager="transactionManager1" />
 
 	<!-- Add support for reading web resources: css, images, js, etc ... -->
 	

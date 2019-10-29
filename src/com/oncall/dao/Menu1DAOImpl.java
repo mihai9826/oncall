@@ -1,31 +1,38 @@
 package com.oncall.dao;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
-import org.hibernate.type.Type;
-import org.hibernate.type.StringType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.object.SqlQuery;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-import org.springframework.ui.Model;
 
-import com.oncall.config.HibernateUtil;
-import com.oncall.entity.*;
+import com.oncall.entity.Menu;
+import com.oncall.entity.Menu1;
+import com.oncall.entity.Menu2;
+import com.oncall.entity.OrderInfo;
+import com.oncall.entity.OrderedItem;
+import com.oncall.entity.UserDetails;
+import com.oncall.entity.UserRegistration;
 
 @Repository
 public class Menu1DAOImpl implements Menu1DAO {
 	
 	//injecting the session factory
-	//@Autowired
-	//private SessionFactory sessionFactory;
+	@Autowired
+	@Qualifier("sessionFactory1")
+	private SessionFactory sessionFactory1;
+	
+	@Autowired
+	@Qualifier("sessionFactory2")
+	private SessionFactory sessionFactory2;
 	
 	private String[] re;
 	private int x;
@@ -34,8 +41,8 @@ public class Menu1DAOImpl implements Menu1DAO {
 	public List<Menu1> getMenu1() {
 		
 		//geting the current hibernate session
-		Session currentSession = HibernateUtil.getCurrentSession("oncall.cfg.xml");
-		Transaction tx = currentSession.beginTransaction();
+		Session currentSession = sessionFactory1.getCurrentSession();
+
 		//create a query..sort by name
 		Query<Menu1> theQuery = 
 				currentSession.createQuery("from Menu1 order by name",
@@ -43,7 +50,7 @@ public class Menu1DAOImpl implements Menu1DAO {
 		
 		//execute query and get result list
 		List<Menu1> menu1 = theQuery.getResultList();
-		tx.commit();
+		
 		return menu1;
 	}
 
@@ -51,16 +58,15 @@ public class Menu1DAOImpl implements Menu1DAO {
 	public List<Menu2> getMenu2() {
 		
 		//geting the current hibernate session
-		Session currentSession = HibernateUtil.getCurrentSession("oncall.cfg.xml");
-		Transaction tx  = currentSession.beginTransaction();		
+		Session currentSession = sessionFactory1.getCurrentSession();
+		
 		//create a query..sort by name
 		Query<Menu2> theQuery = 
 			currentSession.createQuery("from Menu2 order by name",
 						Menu2.class);
 				
 		//execute query and get result list
-		List<Menu2> menu2 = theQuery.getResultList();
-		tx.commit();		
+		List<Menu2> menu2 = theQuery.getResultList();	
 			
 		return menu2;
 		
@@ -69,21 +75,21 @@ public class Menu1DAOImpl implements Menu1DAO {
 	@Override
 	public Menu getItem(int theId, String name) {
 		
-		//geting the current hibernate session
-		Session currentSession = HibernateUtil.getCurrentSession("oncall.cfg.xml");
-		Transaction tx = currentSession.beginTransaction();
+		//getting the current hibernate session
+		Session currentSession = sessionFactory1.getCurrentSession();
+		
 		//read the object from the DB
 		
 		if(name.contentEquals("ciorbe_supe")) {
 			
 			Menu item = (Menu1) currentSession.get(Menu1.class, theId);
-			tx.commit();
+
 			return item;
 		}
 		if(name.contentEquals("specialitati")) {
 			
 			Menu item = (Menu2) currentSession.get(Menu2.class, theId);
-			tx.commit();
+		
 			return item;
 		}
 		
@@ -96,8 +102,8 @@ public class Menu1DAOImpl implements Menu1DAO {
 			String userName) {
 		
 		//geting the current hibernate session
-		Session currentSession = HibernateUtil.getCurrentSession("usersorders.cfg.xml");
-		Transaction tx = currentSession.beginTransaction();
+		Session currentSession = sessionFactory2.getCurrentSession();
+	
 		re = (java.lang.String[]) theSession.getAttribute("req");
 	
 		//create the Sqlquery
@@ -141,59 +147,56 @@ public class Menu1DAOImpl implements Menu1DAO {
 		query2.setParameter(6, userName);
 		
 		query2.executeUpdate();
-		tx.commit();
+	
 	}
 
 	@Override
 	public void getOrder(String orderName) {
 		
-		Session currentSession = HibernateUtil.getCurrentSession("usersorders.cfg.xml");
-		Transaction tx = currentSession.beginTransaction();
+		Session currentSession = sessionFactory2.getCurrentSession();
+		
 		String theQuery = "SELECT * FROM users_orders." + orderName;
 		
 		Query q = currentSession.createNativeQuery(theQuery, OrderedItem.class);
 		
 		com.oncall.controller.CookController.theOrder = (ArrayList<OrderedItem>) q.getResultList();
-		tx.commit();
 		
 	}
 
 	@Override
 	public void deleteOrder(String orderId) {
 		
-		Session currentSession = HibernateUtil.getCurrentSession("usersorders.cfg.xml");
-		Transaction tx = currentSession.beginTransaction();
+		Session currentSession = sessionFactory2.getCurrentSession();
+		
 		String theQuery = "DROP TABLE users_orders." + orderId;
 		
 		Query q = currentSession.createNativeQuery(theQuery);
 		
 		q.executeUpdate();
-		tx.commit();
+		
 		
 	}
 
 	@Override
 	public void saveUser(UserRegistration theUser) {
 		
-		Session currentSession = HibernateUtil.getCurrentSession("oncall.cfg.xml");
-		Transaction tx = currentSession.beginTransaction();
+		Session currentSession = sessionFactory1.getCurrentSession();
+		
 		currentSession.saveOrUpdate(theUser);
-		tx.commit();
 		
 	}
 
 	@Override
 	public void updateAuthorities(UserRegistration theUser) {
 		
-		Session currentSession = HibernateUtil.getCurrentSession("oncall.cfg.xml");
-		Transaction tx = currentSession.beginTransaction();
+		Session currentSession = sessionFactory1.getCurrentSession();
+		
 		NativeQuery<String> query = currentSession.createNativeQuery("INSERT INTO authorities (username, authority) VALUES (?1, ?2)");
 		
 		query.setParameter(1, theUser.getUserName());
 		query.setParameter(2, "ROLE_CLIENT");
 		
 		query.executeUpdate();
-		tx.commit();
 		
 	}
 
@@ -202,10 +205,9 @@ public class Menu1DAOImpl implements Menu1DAO {
 		
 		UserRegistration check = new UserRegistration();
 		
-		Session currentSession = HibernateUtil.getCurrentSession("oncall.cfg.xml");
-		Transaction tx = currentSession.beginTransaction();
+		Session currentSession = sessionFactory1.getCurrentSession();
+		
 		check = currentSession.get(UserRegistration.class, theUser.getUserName());
-		tx.commit();
 		
 		return check;
 		
@@ -214,11 +216,9 @@ public class Menu1DAOImpl implements Menu1DAO {
 	@Override
 	public UserDetails getUserDetails(String userName) {
 		
-		Session currentSession = HibernateUtil.getCurrentSession("oncall.cfg.xml");
-		Transaction tx = currentSession.beginTransaction();
+		Session currentSession = sessionFactory1.getCurrentSession();
 		
 		UserDetails details = currentSession.get(UserDetails.class, userName);
-		tx.commit();
 		
 		return details;
 	}
@@ -226,8 +226,7 @@ public class Menu1DAOImpl implements Menu1DAO {
 	@Override
 	public ArrayList<OrderInfo> getOrdersList() {
 		
-		Session currentSession = HibernateUtil.getCurrentSession("usersorders.cfg.xml");
-		Transaction tx = currentSession.beginTransaction();
+		Session currentSession = sessionFactory2.getCurrentSession();
 		
 		Query q = currentSession.createNativeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema='users_orders';");
 		ArrayList<String> theList = (ArrayList<String>) q.getResultList();
@@ -243,7 +242,6 @@ public class Menu1DAOImpl implements Menu1DAO {
 			}
 		}
 		
-		tx.commit();
 		return requestedList;
 	}
 }

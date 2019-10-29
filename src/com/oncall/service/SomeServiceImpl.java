@@ -49,22 +49,26 @@ public class SomeServiceImpl implements SomeService {
 	
 
 	@Override
+	@Transactional
 	public List<Menu1> getMenu1() {
 		return menu1DAO.getMenu1();
 	}
 
 	@Override
+	@Transactional
 	public List<Menu2> getMenu2() {
 		return menu1DAO.getMenu2();
 	}
 
 	@Override
+	@Transactional
 	public Menu getItem(int theId, String name) {
 		
 		return menu1DAO.getItem(theId, name);
 	}
 
 	@Override
+	@Transactional("ordersTransaction")
 	public void createTable(String sessionId, List<Menu> theList, HttpSession theSession,
 			String userName) {
 		
@@ -73,6 +77,7 @@ public class SomeServiceImpl implements SomeService {
 	}
 
 	@Override
+	@Transactional("ordersTransaction")
 	public void getOrder(String orderName) {
 		
 		menu1DAO.getOrder(orderName);
@@ -80,6 +85,7 @@ public class SomeServiceImpl implements SomeService {
 	}
 
 	@Override
+	@Transactional("ordersTransaction")
 	public void deleteOrder(String orderId) {
 		
 		menu1DAO.deleteOrder(orderId);
@@ -87,6 +93,7 @@ public class SomeServiceImpl implements SomeService {
 	}
 
 	@Override
+	@Transactional
 	public void saveUser(UserRegistration theUser) {
 		
 		menu1DAO.saveUser(theUser);
@@ -94,6 +101,7 @@ public class SomeServiceImpl implements SomeService {
 	}
 
 	@Override
+	@Transactional
 	public void updateAuthorities(UserRegistration theUser) {
 		
 		menu1DAO.updateAuthorities(theUser);
@@ -101,18 +109,21 @@ public class SomeServiceImpl implements SomeService {
 	}
 
 	@Override
+	@Transactional
 	public UserRegistration verifyUserExistence(UserRegistration theUser) {
 		
 		return menu1DAO.verifyUserExistence(theUser);
 	}
 
 	@Override
+	@Transactional
 	public UserDetails getUserDetails(String userName) {
 		
 		return menu1DAO.getUserDetails(userName);
 	}
 
 	@Override
+	@Transactional("ordersTransaction")
 	public ArrayList<OrderInfo> getOrdersList() {
 		
 		return menu1DAO.getOrdersList();
